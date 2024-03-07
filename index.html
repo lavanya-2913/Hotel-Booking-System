@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Management System</title>
+</head>
+<style>
+    body {
+        background-color: lightgreen;
+    }
+    </style>
+<body>
+<h1>Hotel Management System</h1>
+<!-- Form to add a new hotel -->
+<a href="/login.html">Login</a>
+<h2>Add New Hotel</h2>
+<form id="addHotelForm">
+<label for="name">Name:</label>
+<input type="text" id="name" name="name" required><br><br>
+<label for="location">Location:</label>
+<input type="text" id="location" name="location" required><br><br>
+<button type="submit">Add Hotel</button>
+</form>
+<!-- Form to update an existing hotel -->
+<h2>Update Hotel</h2>
+<form id="updateHotelForm">
+<label for="updateId">ID of Hotel to Update:</label>
+<input type="text" id="updateId" name="id" required><br><br>
+<label for="updateName">New Name:</label>
+<input type="text" id="updateName" name="name"><br><br>
+<label for="updateLocation">New Location:</label>
+<input type="text" id="updateLocation" name="location"><br><br>
+<button type="submit">Update Hotel</button>
+</form>
+<!-- Form to delete an existing hotel -->
+<h2>Delete Hotel</h2>
+<form id="deleteHotelForm">
+<label for="deleteId">ID of Hotel to Delete:</label>
+<input type="text" id="deleteId" name="id" required><br><br>
+<button type="submit">Delete Hotel</button>
+</form>
+<!-- Container to display server response -->
+<div id="responseContainer"></div>
+<!-- JavaScript code to handle form submissions -->
+<script>
+// Function to send AJAX request to server
+function sendRequest(method, url, data) {
+return fetch(url, {
+method: method,
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(data)
+})
+.then(response => response.json())
+.catch(error => console.error('Error:', error));
+}
+// Function to retrieve and display all hotels
+function getAllHotels() {
+sendRequest('GET', '/hotels', {})
+.then(response => {
+const hotels = response;
+const hotelList = hotels.map(hotel => `<li>${hotel.name} -
+${hotel.location}</li>`).join('');
+document.getElementById('hotelList').innerHTML =
+`<ul>${hotelList}</ul>`;
+});
+}
+// Add event listener for adding a new hotel
+document.getElementById('addHotelForm').addEventListener('submit',
+function(event) {
+event.preventDefault();
+const formData = new FormData(this);
+const data = Object.fromEntries(formData.entries());
+sendRequest('POST', '/hotels', data)
+.then(response => {
+document.getElementById('responseContainer').innerText =
+JSON.stringify(response);
+getAllHotels(); // Refresh hotel list after adding
+});
+});
+// Add event listener for updating an existing hotel
+document.getElementById('updateHotelForm').addEventListener('submit',
+function(event) {
+event.preventDefault();
+const formData = new FormData(this);
+const data = Object.fromEntries(formData.entries());
+sendRequest('PUT', `/hotels/${data.id}`, data)
+.then(response => {
+document.getElementById('responseContainer').innerText =
+JSON.stringify(response);
+getAllHotels(); // Refresh hotel list after updating
+});
+});
+// Add event listener for deleting an existing hotel
+document.getElementById('deleteHotelForm').addEventListener('submit',
+function(event) {
+event.preventDefault();
+const formData = new FormData(this);
+const data = Object.fromEntries(formData.entries());
+sendRequest('DELETE', `/hotels/${data.id}`, {})
+.then(response => {
+document.getElementById('responseContainer').innerText =
+JSON.stringify(response);
+getAllHotels(); // Refresh hotel list after deleting
+});
+});
+// Function to handle viewing all hotels
+function viewAllHotels() {
+getAllHotels();
+}
+// Call the function to retrieve and display all hotels when the page loads
+window.onload = function() {
+getAllHotels();
+};
+</script>
+<!-- Container to display list of hotels -->
+<h2>List of Hotels</h2>
+<div id="hotelList"></div>
+<!-- Button to view all hotels -->
+<button onclick="viewAllHotels()">View All Hotels</button>
+<!-- Button to fetch and display all hotels -->
+<button id="fetchHotelsBtn">Fetch Hotels</button>
+<!-- Container to display server response -->
+<div id="responseContainer"></div>
+<!-- Container to display list of hotels -->
+<div id="hotelListContainer"></div>
+<!-- JavaScript code to handle form submission and fetch hotels -->
+<script>
+// Function to send AJAX request to server
+function sendRequest(method, url, data) {
+return fetch(url, {
+method: method,
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(data)
+})
+.then(response => response.json())
+.catch(error => console.error('Error:', error));
+}
+// Function to fetch and display all hotels
+function fetchAndDisplayHotels() {
+sendRequest('GET', '/hotels')
+.then(hotels => {
+const hotelListContainer =
+document.getElementById('hotelListContainer');
+hotelListContainer.innerHTML = ''; // Clear previous content
+hotels.forEach(hotel => {
+const hotelElement = document.createElement('div');
+hotelElement.textContent = `${hotel.name} - ${hotel.location}`;
+hotelListContainer.appendChild(hotelElement);
+});
+})
+.catch(error => console.error('Error fetching hotels:', error));
+}
+// Add event listener for adding a new hotel
+document.getElementById('addHotelForm').addEventListener('submit',
+function(event) {
+event.preventDefault();
+const formData = new FormData(this);
+const data = Object.fromEntries(formData.entries());
+sendRequest('POST', '/hotels', data)
+.then(response => {
+document.getElementById('responseContainer').innerText =
+JSON.stringify(response);
+});
+});
+// Add event listener for fetching hotels
+document.getElementById('fetchHotelsBtn').addEventListener('click',
+fetchAndDisplayHotels);
+// Fetch and display hotels when the page loads
+window.addEventListener('load', fetchAndDisplayHotels);
+</script>
+</body>
+</html>
